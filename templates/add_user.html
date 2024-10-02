@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Add User{% endblock %}
+
+{% block content %}
+<h1>Add User</h1>
+
+<form method="POST">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required><br><br>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required><br><br>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required><br><br>
+
+    <label for="percentage">Percentage:</label>
+    <input type="number" id="percentage" name="percentage" min="0" max="100"><br><br>
+
+    <label for="work">Work:</label>
+    <input type="text" id="work" name="work"><br><br>
+
+    <label for="position">Position:</label>
+    <input type="text" id="position" name="position"><br><br>
+
+    <input type="submit" value="Add User">
+</form>
+
+{% endblock %}

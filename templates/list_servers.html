@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}List of Servers{% endblock %}
+
+{% block content %}
+<h1>Servers</h1>
+
+<ul>
+    {% for server in servers %}
+        <li>
+            <strong>{{ server.name }}</strong> (IP: {{ server.ip_address }}, Specs: {{ server.specs }})
+            <br>
+            <a href="{{ url_for('view_server', server_id=server.id) }}">View Server Details</a>
+            <br>
+            <!-- Add Assign Users link -->
+            <a href="{{ url_for('assign_users', server_id=server.id) }}">Assign Users</a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

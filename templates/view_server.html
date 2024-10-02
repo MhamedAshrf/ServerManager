@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Server Details{% endblock %}
+
+{% block content %}
+<h1>Server Details</h1>
+
+<h2>{{ server.name }}</h2>
+<p><strong>IP Address:</strong> {{ server.ip_address }}</p>
+<p><strong>Specifications:</strong> {{ server.specs }}</p>
+<p><strong>Location:</strong> {{ server.location }}</p>
+
+<h3>Assigned Users</h3>
+<ul>
+    {% for user in server.users %}
+        <li>{{ user.username }}</li>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('assign_users', server_id=server.id) }}">Assign Users to this Server</a>
+{% endblock %}

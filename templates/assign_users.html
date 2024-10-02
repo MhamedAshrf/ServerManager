@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Assign Users to Servers{% endblock %}
+
+{% block content %}
+<h1>Assign Users to Servers</h1>
+<form method="POST">
+    <label for="server">Select Server:</label>
+    <select id="server" name="server_id">
+        {% for server in servers %}
+            <option value="{{ server.id }}">{{ server.name }}</option>
+        {% endfor %}
+    </select><br>
+
+    <label for="user">Select User:</label>
+    <select id="user" name="user_id">
+        {% for user in users %}
+            <option value="{{ user.id }}">{{ user.username }}</option>
+        {% endfor %}
+    </select><br>
+
+    <input type="submit" value="Assign User">
+</form>
+{% endblock %}

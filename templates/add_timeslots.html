@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Time Slots{% endblock %}
+
+{% block content %}
+<h1>Add Time Slots</h1>
+<form method="POST">
+    <label for="start_time">Start Time:</label>
+    <input type="datetime-local" id="start_time" name="start_time" required><br>
+
+    <label for="end_time">End Time:</label>
+    <input type="datetime-local" id="end_time" name="end_time" required><br>
+
+    <input type="submit" value="Add Time Slots">
+</form>
+{% endblock %}

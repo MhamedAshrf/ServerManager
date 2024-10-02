@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<h1>Admin Dashboard</h1>
+
+<!-- Section: User Overview -->
+<h2>Users</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Percentage</th>
+            <th>Work</th>
+            <th>Position</th>
+            <th>Assigned Servers</th>
+            <th>Reserved Slots</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.percentage }}%</td>
+            <td>{{ user.work }}</td>
+            <td>{{ user.position }}</td>
+            <td>
+                {% for server in user.servers %}
+                
+                    <span>{{ server.name }}</span><br>
+                {% endfor %}
+            </td>
+            <td>
+                {% for slot in user.reserved_slots %}
+                    <span>{{ slot.server.name }}: {{ slot.start_time }} - {{ slot.end_time }}</span><br>
+                {% endfor %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<!-- Section: Server Overview -->
+<h2>Servers</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Server Name</th>
+            <th>IP Address</th>
+            <th>Specs</th>
+            <th>Location</th>
+            <th>Total Slots</th>
+            <th>Reserved Slots</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for server in servers %}
+        <tr>
+            <td>{{ server.name }}</td>
+            <td>{{ server.ip_address }}</td>
+            <td>{{ server.specs }}</td>
+            <td>{{ server.location }}</td>
+            <td>{{ server.time_slots|length }}</td>
+            <td>{{ server.time_slots|selectattr('reserved_by_user')|list|length }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Section: Resource Consumption -->
+<h2>Resource Usage</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Total Reservations</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.reserved_slots|length }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Time Slots{% endblock %}
+
+{% block content %}
+<h1>Time Slots for {{ server.name }}</h1>
+
+<ul>
+    {% for slot in time_slots %}
+        <li>
+            <strong>{{ slot.start_time }} - {{ slot.end_time }}</strong>
+            <br>
+            {% if slot.reserved_by_user %}
+                <span>Reserved by: <strong>{{ slot.reserved_by_user.username }}</strong></span>
+            {% else %}
+                <form action="{{ url_for('reserve_slot_list', slot_id=slot.id) }}" method="POST">
+                    <button type="submit">Reserve this slot</button>
+                </form>
+            {% endif %}
+        </li>
+    {% else %}
+        <li>No time slots available.</li>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('view_server', server_id=server.id) }}">Back to Server Details</a>
+{% endblock %}
