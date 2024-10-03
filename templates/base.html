@@ -23,6 +23,8 @@
 
                 <!-- User-only Links -->
                 {% if not current_user.is_admin %}
+                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+
                     <li><a href="{{ url_for('reserve_slot_list') }}">Reserve Server</a></li>
                 {% endif %}
                 

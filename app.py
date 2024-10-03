@@ -30,15 +30,14 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(150), nullable=False, unique=True)
     email = db.Column(db.String(150), nullable=False, unique=True)
     password = db.Column(db.String(200), nullable=False)
-    percentage = db.Column(db.Integer, nullable=True)  # Percentage value
+    percentage = db.Column(db.Float, nullable=True)  # Percentage value
     work = db.Column(db.String(150), nullable=True)    # Work information
     position = db.Column(db.String(150), nullable=True) # Position
     is_admin = db.Column(db.Boolean, default=False, nullable=False)  # Admin flag
 
-    # Other fields like servers, reserved_slots, etc.
+    # Other relationships
+    # The backref 'reservations' from TimeSlot will refer to this model
 
-    def __repr__(self):
-        return f'<User {self.username}>'
 
 
 # Server Model
@@ -48,6 +47,13 @@ class Server(db.Model):
     ip_address = db.Column(db.String(50), nullable=False)
     specs = db.Column(db.String(250))
     location = db.Column(db.String(100))
+    
+    # Add the users relationship here
+    users = db.relationship('User', secondary=user_server, backref=db.backref('servers', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<Server {self.name}>'
+
 
 from datetime import datetime, timedelta
 
@@ -59,8 +65,9 @@ class TimeSlot(db.Model):
     end_time = db.Column(db.DateTime, nullable=False)
     server_id = db.Column(db.Integer, db.ForeignKey('server.id'), nullable=False)
     server = db.relationship('Server', backref='time_slots')
+    
     reserved_by_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # Who reserved the slot
-    reserved_by_user = db.relationship('User', backref='reserved_slots')
+    reserved_by_user = db.relationship('User', backref='reservations')  # Changed backref from 'reserved_slots' to 'reservations'
 
 # Flask-Login loader
 @login_manager.user_loader
@@ -120,7 +127,7 @@ def add_user():
         position = request.form.get('position')
 
         # Hash the password
-        hashed_password = generate_password_hash(password, method='sha256')
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
 
         # Create a new user object
         new_user = User(username=username, email=email, password=hashed_password, 
@@ -181,7 +188,7 @@ def assign_users(server_id):
         user_id = request.form.get('user_id')
         user = User.query.get(user_id)
         if user:
-            server.users.append(user)
+            server.users.append(user)  # Adding the user to the server
             db.session.commit()
             flash(f"User {user.username} has been assigned to {server.name}.", 'success')
         else:
@@ -189,6 +196,7 @@ def assign_users(server_id):
         return redirect(url_for('assign_users', server_id=server.id))
 
     return render_template('assign_users.html', server=server, users=users)
+
 
 
 # User login
@@ -260,13 +268,28 @@ def reserve_slot_list():
         if slot.reserved_by_user:
             flash(f"The slot from {slot.start_time} to {slot.end_time} is already reserved.", 'danger')
         else:
-            slot.reserved_by_user = current_user
-            db.session.commit()
-            flash(f"You have successfully reserved the slot from {slot.start_time} to {slot.end_time}.", 'success')
+            # Calculate allowed slots based on the user's percentage
+            allowed_slots = calculate_allowed_slots(current_user, slot.server)
+            reserved_slots = TimeSlot.query.filter_by(server=slot.server, reserved_by_user=current_user).count()
+
+            # Check if the user exceeds their allocation
+            if reserved_slots >= allowed_slots:
+                flash("You have exceeded your slot allocation for this month.", 'danger')
+            else:
+                # Reserve the slot
+                slot.reserved_by_user = current_user
+                db.session.commit()
+
+                # Check usage limits and provide feedback
+                usage_feedback = check_usage_limits(current_user, slot.server)
+                flash(usage_feedback, 'info')
+
+                flash(f"You have successfully reserved the slot from {slot.start_time} to {slot.end_time}.", 'success')
 
         return redirect(url_for('reserve_slot_list'))
 
     return render_template('reserve_slot_list.html', servers=servers)
+
 
 
 
@@ -298,14 +321,67 @@ def dashboard():
     # Fetch servers assigned to the current user
     assigned_servers = Server.query.filter(Server.users.contains(current_user)).all()
 
-    # Debugging: Ensure that the assigned_servers list is being populated correctly
-    if not assigned_servers:
-        print("No servers assigned to this user.")
-    else:
-        print("Assigned Servers:", assigned_servers)
+    allowed_slots = {}
+    used_slots = {}
+    usage_percentage = {}
 
-    # Render the template and pass assigned_servers
-    return render_template('dashboard.html', assigned_servers=assigned_servers)
+    # Calculate allowed, used slots and usage percentage for each server
+    for server in assigned_servers:
+        allowed_slots[server.id] = calculate_allowed_slots(current_user, server)
+        used_slots[server.id] = len([slot for slot in server.time_slots if slot.reserved_by_user == current_user])
+
+        # Calculate the usage percentage
+        if allowed_slots[server.id] > 0:
+            usage_percentage[server.id] = (used_slots[server.id] / allowed_slots[server.id]) * 100
+        else:
+            usage_percentage[server.id] = 0  # If no slots are allowed, usage is 0%
+
+    # Pass data to the template
+    return render_template(
+        'dashboard.html', 
+        assigned_servers=assigned_servers, 
+        allowed_slots=allowed_slots, 
+        used_slots=used_slots, 
+        usage_percentage=usage_percentage
+    )
+
+
+from datetime import datetime, timedelta
+
+def calculate_allowed_slots(user, server):
+    total_slots = 360  # Example: Assume there are 360 slots per month
+
+    # Sum up the ratios of all users assigned to the server, treating None as 0
+    total_ratio = sum([u.percentage if u.percentage is not None else 0 for u in server.users])
+
+    if total_ratio == 0:
+        return 0  # Avoid division by zero if total_ratio is 0
+
+    user_ratio = user.percentage if user.percentage is not None else 0
+    allowed_slots = (user_ratio / total_ratio) * total_slots
+    return allowed_slots
+
+
+
+def calculate_used_slots(user, server):
+    # Count how many slots the user has used for this server
+    used_slots = TimeSlot.query.filter_by(server_id=server.id, reserved_by_user_id=user.id).count()
+    return used_slots
+
+def check_usage_limits(user, server):
+    """
+    Check if the user has exceeded 75% or 95% of their allowed slots.
+    """
+    allowed_slots = calculate_allowed_slots(user, server)
+    reserved_slots = TimeSlot.query.filter_by(server=server, reserved_by_user=user).count()
+
+    usage_percentage = (reserved_slots / allowed_slots) * 100
+    if usage_percentage >= 95:
+        return "Alert: You have exceeded 95% of your slot allocation!"
+    elif usage_percentage >= 75:
+        return "Warning: You have used more than 75% of your allocated slots!"
+    return f"You have used {usage_percentage:.2f}% of your allowed slots."
+
 
 # User logout
 @app.route('/logout')
@@ -316,4 +392,4 @@ def logout():
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

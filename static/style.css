@@ -5,6 +5,15 @@
     box-sizing: border-box;
 }
 
+/* Body and global styles */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f4f4;
+    color: #333;
+    padding-bottom: 60px; /* Make space for fixed footer */
+}
+
 /* Navbar Styles */
 nav {
     background-color: #333;
@@ -31,12 +40,26 @@ nav ul li a:hover {
     color: #f0c040;
 }
 
-/* Content Styles */
+/* Responsive Navbar */
+@media (max-width: 600px) {
+    nav ul {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    nav ul li {
+        margin: 5px 0;
+    }
+}
+
+/* Main Content Styles */
 .content {
     padding: 20px;
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
-    font-family: Arial, sans-serif;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
 }
 
 /* Footer Styles */
@@ -49,26 +72,16 @@ footer {
     width: 100%;
     bottom: 0;
 }
-/* Styling for the search bar */
-#searchInput {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
 
-/* Table styling */
+/* Table Styling */
 table {
     width: 100%;
     border-collapse: collapse;
+    margin-bottom: 30px;
 }
 
 table, th, td {
     border: 1px solid #ddd;
-}
-
-th, td {
     padding: 12px;
     text-align: left;
 }
@@ -77,7 +90,11 @@ th {
     background-color: #f2f2f2;
 }
 
-/* Button styling */
+table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Button Styling */
 button {
     background-color: #4CAF50;
     color: white;
@@ -90,31 +107,31 @@ button {
 button:hover {
     background-color: #45a049;
 }
+
+/* Form Field Styling */
+input[type="text"], input[type="number"], select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
 /* Admin Dashboard Styles */
 h1, h2 {
     margin-bottom: 20px;
 }
 
-table {
+/* Search Bar Styling */
+#searchInput {
     width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 30px;
-}
-
-table, th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
-}
-
-th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-}
-
-td {
-    text-align: center;
-}
-
-table tbody tr:hover {
-    background-color: #f9f9f9;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }

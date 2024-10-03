@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}User Dashboard{% endblock %}
+
+{% block content %}
+<h1>User Dashboard</h1>
+
+<h2>Your Assigned Servers</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Server Name</th>
+            <th>Allowed Slots</th>
+            <th>Used Slots</th>
+            <th>Usage Percentage</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for server in assigned_servers %}
+        <tr>
+            <td>{{ server.name }}</td>
+            <td>{{ allowed_slots[server.id] }}</td>
+            <td>{{ used_slots[server.id] }}</td>
+            <td>{{ usage_percentage[server.id] }}%</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Show warnings and alerts based on usage percentage -->
+{% for server in assigned_servers %}
+    {% if usage_percentage[server.id] >= 95 %}
+        <div class="alert alert-danger">Warning: You have exceeded 95% of your allowed slots on {{ server.name }}!</div>
+    {% elif usage_percentage[server.id] >= 75 %}
+        <div class="alert alert-warning">Notice: You have used more than 75% of your allowed slots on {{ server.name }}.</div>
+    {% endif %}
+{% endfor %}
+
+{% endblock %}
