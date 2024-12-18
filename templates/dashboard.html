@@ -18,12 +18,14 @@
     </thead>
     <tbody>
         {% for server in assigned_servers %}
+{% if server.users[username] == username%}
         <tr>
             <td>{{ server.name }}</td>
             <td>{{ allowed_slots[server.id] }}</td>
             <td>{{ used_slots[server.id] }}</td>
             <td>{{ usage_percentage[server.id] }}%</td>
         </tr>
+    {%endif%}   
         {% endfor %}
     </tbody>
 </table>

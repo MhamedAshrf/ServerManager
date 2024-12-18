@@ -8,6 +8,81 @@
 {% if current_user.is_admin %}
     <p>You are logged in as an admin. You can create servers, add users, and assign users to servers.</p>
 {% else %}
-    <p>You are logged in as a user. You can reserve time slots on the servers you have been assigned to.</p>
-{% endif %}
+<h1>Getting Started with Linux</h1>
+
+<h2>1. Accessing the Terminal</h2>
+<p>The terminal is the command-line interface in Linux, used to execute commands.</p>
+<ul>
+    <li>Open it by pressing <code>Ctrl + Alt + T</code> (common shortcut).</li>
+    <li>Search for "Terminal" in the application menu.</li>
+</ul>
+
+<h2>2. Basic Commands</h2>
+<ul>
+    <li>
+        <strong><code>pwd</code></strong>: Print the current working directory.
+        <pre><code>pwd</code></pre>
+    </li>
+    <li>
+        <strong><code>ls</code></strong>: List files and directories in the current directory.
+        <pre><code>ls</code></pre>
+    </li>
+    <li>
+        <strong><code>cd</code></strong>: Change directory.
+        <pre><code>cd /path/to/directory</code></pre>
+    </li>
+    <li>
+        <strong><code>mkdir</code></strong>: Create a new directory.
+        <pre><code>mkdir new_directory_name</code></pre>
+    </li>
+    <li>
+        <strong><code>touch</code></strong>: Create a new empty file.
+        <pre><code>touch filename.txt</code></pre>
+    </li>
+    <li>
+        <strong><code>rm</code></strong>: Remove files or directories.
+        <pre><code>rm filename.txt</code></pre>
+    </li>
+</ul>
+
+<h2>3. Editing Files</h2>
+<p>Use text editors like <code>nano</code> or <code>vim</code> to edit files:</p>
+<ul>
+    <li>
+        Open a file with <code>nano</code>:
+        <pre><code>nano filename.txt</code></pre>
+    </li>
+    <li>
+        Save changes in <code>nano</code>: Press <code>Ctrl + O</code>, then <code>Enter</code>.
+    </li>
+    <li>
+        Exit <code>nano</code>: Press <code>Ctrl + X</code>.
+    </li>
+</ul>
+
+<h2>4. Managing Packages</h2>
+<p>Install or update software using package managers:</p>
+<ul>
+    <li>
+        For Debian-based systems (e.g., Ubuntu):
+        <pre><code>sudo apt update</code></pre>
+        <pre><code>sudo apt install package_name</code></pre>
+    </li>
+    <li>
+        For Red Hat-based systems (e.g., Fedora):
+        <pre><code>sudo dnf install package_name</code></pre>
+    </li>
+</ul>
+
+<h2>5. Getting Help</h2>
+<ul>
+    <li>
+        Use <code>man</code> to read manual pages for commands:
+        <pre><code>man command_name</code></pre>
+    </li>
+    <li>
+        Use <code>--help</code> to see usage instructions:
+        <pre><code>command_name --help</code></pre>
+    </li>
+</ul>{% endif %}
 {% endblock %}

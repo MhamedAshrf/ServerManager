@@ -34,7 +34,8 @@ class User(db.Model, UserMixin):
     work = db.Column(db.String(150), nullable=True)    # Work information
     position = db.Column(db.String(150), nullable=True) # Position
     is_admin = db.Column(db.Boolean, default=False, nullable=False)  # Admin flag
-
+    def __repr__(self):
+        return f'<user {self.username}>'
     # Other relationships
     # The backref 'reservations' from TimeSlot will refer to this model
 
@@ -245,6 +246,7 @@ def generate_daily_time_slots():
 scheduler.add_job(id='generate_daily_time_slots', func=generate_daily_time_slots, trigger='interval', days=1)
 
 
+
 @app.route('/reserve_slot_list', methods=['GET', 'POST'])
 @login_required
 def reserve_slot_list():
@@ -289,7 +291,6 @@ def reserve_slot_list():
         return redirect(url_for('reserve_slot_list'))
 
     return render_template('reserve_slot_list.html', servers=servers)
-
 
 
 
